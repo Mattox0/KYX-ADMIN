@@ -2,13 +2,13 @@
 
 import { ShowcaseSection } from "@/components/Layouts/showcase-section";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetNeverHaveModesQuery, useDeleteModeMutation } from "@/services/modes.service";
+import { useGetTruthDareModesQuery, useDeleteModeMutation } from "@/services/modes.service";
 import { useState } from "react";
 import { CreateModeForm } from "@/app/modes/_components/create-mode-form";
 import { Mode } from "@/types/api/Mode";
 
-export function ModeNeverHave() {
-  const { isLoading, error, data } = useGetNeverHaveModesQuery();
+export function ModeTruthDare() {
+  const { isLoading, error, data } = useGetTruthDareModesQuery();
   const [isCreatingMode, setIsCreatingMode] = useState(false);
   const [editingMode, setEditingMode] = useState<Mode | null>(null);
   const [deleteMode] = useDeleteModeMutation();
@@ -39,7 +39,7 @@ export function ModeNeverHave() {
 
   if (error) {
     return (
-      <ShowcaseSection title="Modes - Je n'ai jamais" className="!p-6.5">
+      <ShowcaseSection title="Modes - Action ou Vérité" className="!p-6.5">
         <p className="text-red">Une erreur est survenue lors de la récupération des données.</p>
       </ShowcaseSection>
     );
@@ -47,7 +47,7 @@ export function ModeNeverHave() {
 
   return (
     <ShowcaseSection
-      title="Modes - Je n'ai jamais"
+      title="Modes - Action ou Vérité"
       className="!p-6.5"
       headerChildren={
         <button className="rounded-md bg-primary px-4 py-2 mr-4 text-sm text-white hover:bg-primary/90" onClick={toggleCreateMode}>
@@ -59,7 +59,7 @@ export function ModeNeverHave() {
         <CreateModeForm
           key={editingMode?.id ?? "create"}
           mode={editingMode ?? undefined}
-          gameType="neverHave"
+          gameType="truthDare"
           onSuccess={editingMode ? handleEditSuccess : toggleCreateMode}
           onCancel={editingMode ? handleEditSuccess : undefined}
         />

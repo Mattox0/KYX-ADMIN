@@ -1,3 +1,5 @@
+"use client";
+
 import { CheckIcon, XIcon } from "@/assets/icons";
 import { cn } from "@/lib/utils";
 import { useId } from "react";
@@ -7,23 +9,36 @@ type PropsType = {
   background?: "dark" | "light";
   backgroundSize?: "sm" | "default";
   name?: string;
+  label?: string;
+  checked?: boolean;
+  onChange?: (checked: boolean) => void;
 };
 
 export function Switch({
-  background,
-  withIcon,
-  backgroundSize,
-  name,
-}: PropsType) {
+                         background,
+                         withIcon,
+                         backgroundSize,
+                         name,
+                         label,
+                         checked,
+                         onChange,
+                       }: PropsType) {
   const id = useId();
 
   return (
     <label
       htmlFor={id}
-      className="flex max-w-fit cursor-pointer select-none items-center"
+      className="flex cursor-pointer select-none items-center gap-3"
     >
       <div className="relative">
-        <input type="checkbox" name={name} id={id} className="peer sr-only" />
+        <input
+          type="checkbox"
+          name={name}
+          id={id}
+          className="peer sr-only"
+          checked={checked}
+          onChange={(e) => onChange?.(e.target.checked)}
+        />
         <div
           className={cn("h-8 w-14 rounded-full bg-gray-3 dark:bg-[#5A616B]", {
             "h-5": backgroundSize === "sm",
@@ -49,6 +64,12 @@ export function Switch({
           )}
         </div>
       </div>
+
+      {label && (
+        <span className="text-sm font-medium text-dark dark:text-white">
+          {label}
+        </span>
+      )}
     </label>
   );
 }

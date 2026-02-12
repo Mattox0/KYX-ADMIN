@@ -1,5 +1,5 @@
 export interface Mode {
-  id: number;
+  id: string;
   name: string;
   description: string;
   icon?: string;

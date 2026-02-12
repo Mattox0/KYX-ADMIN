@@ -13,24 +13,32 @@ export const NAV_DATA = [
       {
         title: "Modes",
         url: "/modes",
-        icon: Icons.ModeIcon,
+        icon: Icons.GamepadIcon,
         items: [],
+      },
+      {
+        title: "Questions",
+        icon: Icons.QuestionIcon,
+        items: [
+          {
+            title: "Je n'ai jamais",
+            url: "/questions/never-have",
+          },
+          {
+            title: "Tu préfères",
+            url: "/questions/prefer",
+          },
+          {
+            title: "Action ou vérité",
+            url: "/questions/truth-dare",
+          }
+        ],
       }
     ],
   },
   {
     label: "OTHERS",
     items: [
-      {
-        title: "Charts",
-        icon: Icons.PieChart,
-        items: [
-          {
-            title: "Basic Chart",
-            url: "/charts/basic-chart",
-          },
-        ],
-      },
       {
         title: "UI Elements",
         icon: Icons.FourCircle,
