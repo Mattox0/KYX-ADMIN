@@ -5,10 +5,11 @@ import { PaginatedResponse } from "@/types/api/Pagination";
 
 const preferApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getPreferPagination: builder.query<PaginatedResponse<Prefer>, { page?: number; limit?: number; modeId?: string | null }>({
-      query: ({ page = 1, limit = 50, modeId } = {}) => {
+    getPreferPagination: builder.query<PaginatedResponse<Prefer>, { page?: number; limit?: number; modeId?: string | null; search?: string | null }>({
+      query: ({ page = 1, limit = 50, modeId, search } = {}) => {
         let url = `/prefer?page=${page}&limit=${limit}`;
         if (modeId) url += `&modeId=${modeId}`;
+        if (!!search) url += `&search=${encodeURIComponent(search)}`;
         return url;
       },
       providesTags: [TagType.QUESTIONS_PREFER],
@@ -36,6 +37,14 @@ const preferApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [TagType.QUESTIONS_PREFER],
     }),
+    importPrefer: builder.mutation<void, { questions: { choiceOne: string; choiceTwo: string; modeId: string }[] }>({
+      query: (body) => ({
+        url: "/prefer/import",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [TagType.QUESTIONS_PREFER],
+    }),
   }),
 });
 
@@ -44,4 +53,5 @@ export const {
   useCreatePreferMutation,
   useUpdatePreferMutation,
   useDeletePreferMutation,
+  useImportPreferMutation,
 } = preferApi;

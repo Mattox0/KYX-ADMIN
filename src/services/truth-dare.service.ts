@@ -5,10 +5,11 @@ import { PaginatedResponse } from "@/types/api/Pagination";
 
 const truthDareApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getTruthDarePagination: builder.query<PaginatedResponse<TruthDare>, { page?: number; limit?: number; modeId?: string | null }>({
-      query: ({ page = 1, limit = 50, modeId } = {}) => {
+    getTruthDarePagination: builder.query<PaginatedResponse<TruthDare>, { page?: number; limit?: number; modeId?: string | null; search?: string | null }>({
+      query: ({ page = 1, limit = 50, modeId, search } = {}) => {
         let url = `/truth-dare?page=${page}&limit=${limit}`;
         if (modeId) url += `&modeId=${modeId}`;
+        if (!!search) url += `&search=${encodeURIComponent(search)}`;
         return url;
       },
       providesTags: [TagType.QUESTIONS_TRUTH_DARE],
@@ -36,6 +37,14 @@ const truthDareApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [TagType.QUESTIONS_TRUTH_DARE],
     }),
+    importTruthDare: builder.mutation<void, { questions: { type: string; gender: string; question: string; modeId: string }[] }>({
+      query: (body) => ({
+        url: "/truth-dare/import",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [TagType.QUESTIONS_TRUTH_DARE],
+    }),
   }),
 });
 
@@ -44,4 +53,5 @@ export const {
   useCreateTruthDareMutation,
   useUpdateTruthDareMutation,
   useDeleteTruthDareMutation,
+  useImportTruthDareMutation,
 } = truthDareApi;

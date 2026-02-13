@@ -5,10 +5,11 @@ import { PaginatedResponse } from "@/types/api/Pagination";
 
 const neverHaveApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getNeverHavePagination: builder.query<PaginatedResponse<NeverHave>, { page?: number; limit?: number; modeId?: string | null }>({
-      query: ({ page = 1, limit = 50, modeId } = {}) => {
+    getNeverHavePagination: builder.query<PaginatedResponse<NeverHave>, { page?: number; limit?: number; modeId?: string | null; search?: string | null }>({
+      query: ({ page = 1, limit = 50, modeId, search } = {}) => {
         let url = `/never-have?page=${page}&limit=${limit}`;
         if (modeId) url += `&modeId=${modeId}`;
+        if (!!search) url += `&search=${encodeURIComponent(search)}`;
         return url;
       },
       providesTags: [TagType.QUESTIONS_NEVER_HAVE],
@@ -36,6 +37,14 @@ const neverHaveApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [TagType.QUESTIONS_NEVER_HAVE],
     }),
+    importNeverHave: builder.mutation<void, { questions: { question: string; modeId: string }[] }>({
+      query: (body) => ({
+        url: "/never-have/import",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: [TagType.QUESTIONS_NEVER_HAVE],
+    }),
   }),
 });
 
@@ -44,4 +53,5 @@ export const {
   useCreateNeverHaveMutation,
   useUpdateNeverHaveMutation,
   useDeleteNeverHaveMutation,
+  useImportNeverHaveMutation,
 } = neverHaveApi;

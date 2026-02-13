@@ -15,7 +15,6 @@ interface QuestionsListLayoutProps<T extends Question> {
   data: PaginatedResponse<T> | undefined;
   isLoading: boolean;
   error: unknown;
-  page: number;
   onPageChange: (page: number) => void;
   selectedModeId: string | null;
   onModeChange: (modeId: string | null) => void;
@@ -30,7 +29,6 @@ export function QuestionsListLayout<T extends Question>({
   data,
   isLoading,
   error,
-  page,
   onPageChange,
   selectedModeId,
   onModeChange,

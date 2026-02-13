@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { useGetTruthDareModesQuery } from "@/services/modes.service";
 import {
   useCreateTruthDareMutation,
@@ -36,10 +36,7 @@ export function TruthDareForm({
 
   const isLoading = isCreating || isUpdating;
 
-  const selectClass =
-    "w-full appearance-none rounded-lg border border-stroke bg-transparent px-5.5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-dark-3 dark:bg-dark-2 dark:focus:border-primary text-dark dark:text-white";
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
@@ -76,7 +73,7 @@ export function TruthDareForm({
             value={modeId}
             onChange={(e) => setModeId(e.target.value)}
             required
-            className={selectClass}
+            className="w-full appearance-none rounded-lg border border-stroke bg-transparent px-5.5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-dark-3 dark:bg-dark-2 dark:focus:border-primary text-dark dark:text-white"
           >
             <option value="" disabled hidden>
               {modesLoading ? "Chargement..." : "Sélectionner un mode"}
@@ -97,7 +94,7 @@ export function TruthDareForm({
             value={type}
             onChange={(e) => setType(e.target.value)}
             required
-            className={selectClass}
+            className="w-full appearance-none rounded-lg border border-stroke bg-transparent px-5.5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-dark-3 dark:bg-dark-2 dark:focus:border-primary text-dark dark:text-white"
           >
             <option value="" disabled hidden>
               Sélectionner le type
@@ -115,7 +112,7 @@ export function TruthDareForm({
             value={gender}
             onChange={(e) => setGender(e.target.value)}
             required
-            className={selectClass}
+            className="w-full appearance-none rounded-lg border border-stroke bg-transparent px-5.5 py-3 outline-none transition focus:border-primary active:border-primary dark:border-dark-3 dark:bg-dark-2 dark:focus:border-primary text-dark dark:text-white"
           >
             <option value="" disabled hidden>
               Sélectionner le genre

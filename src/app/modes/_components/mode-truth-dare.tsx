@@ -88,6 +88,9 @@ export function ModeTruthDare() {
               ))
               : data?.map((mode) => (
                 <tr key={mode.id} className="border-b border-stroke dark:border-dark-3">
+                  <td className="px-4 py-4 font-medium text-body-color dark:text-dark-6">
+                    {mode.id}
+                  </td>
                   <td className="px-4 py-4 font-medium text-dark dark:text-white">
                     {mode.name}
                   </td>

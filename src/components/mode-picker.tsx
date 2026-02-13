@@ -31,7 +31,7 @@ export function ModePicker({ modes, value, onChange }: PropsType) {
 
       <DropdownContent
         align="end"
-        className="min-w-[10rem] overflow-hidden rounded-lg border border-[#E8E8E8] bg-white p-1 font-medium text-dark-5 shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 dark:border-dark-3 dark:bg-dark-2 dark:text-current"
+        className="min-w-[10rem] rounded-lg border border-[#E8E8E8] bg-white p-1 font-medium text-dark-5 shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 dark:border-dark-3 dark:bg-dark-2 dark:text-current"
       >
         <ul>
           <li>
