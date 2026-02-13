@@ -1,21 +1,21 @@
 "use client";
 
 import { Fragment, useRef, useState } from "react";
-import { Prefer } from "@/types/api/Question";
-import { useGetPreferPaginationQuery, useDeletePreferMutation, useImportPreferMutation } from "@/services/prefer.service";
-import { useGetPreferModesQuery } from "@/services/modes.service";
+import { TruthDare } from "@/types/api/Question";
+import { useGetTruthDarePaginationQuery, useDeleteTruthDareMutation, useImportTruthDareMutation } from "@/services/truth-dare.service";
+import { useGetTruthDareModesQuery } from "@/services/modes.service";
 import { QuestionsListLayout } from "@/components/questions-list-layout";
-import { PreferForm } from "@/app/questions/_components/prefer-form";
+import { TruthDareForm } from "@/app/questions/_components/forms/truth-dare-form";
 import { SearchIcon } from "@/assets/icons";
 
-export default function QuestionsPreferList() {
+export default function QuestionsTruthDareList() {
   const [page, setPage] = useState(1);
   const [selectedModeId, setSelectedModeId] = useState<string | null>(null);
   const [search, setSearch] = useState<string | null>(null);
-  const { data: modes } = useGetPreferModesQuery();
-  const { isLoading, error, data } = useGetPreferPaginationQuery({ page, limit: 50, modeId: selectedModeId, search: search });
-  const [deletePrefer] = useDeletePreferMutation();
-  const [importPrefer] = useImportPreferMutation();
+  const { data: modes } = useGetTruthDareModesQuery();
+  const { isLoading, error, data, refetch } = useGetTruthDarePaginationQuery({ page, limit: 50, modeId: selectedModeId, search: search });
+  const [deleteTruthDare] = useDeleteTruthDareMutation();
+  const [importTruthDare] = useImportTruthDareMutation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleModeChange = (modeId: string | null) => {
@@ -23,9 +23,9 @@ export default function QuestionsPreferList() {
     setPage(1);
   };
 
-  const handleDelete = async (item: Prefer) => {
+  const handleDelete = async (item: TruthDare) => {
     try {
-      await deletePrefer(item.id).unwrap();
+      await deleteTruthDare(item.id).unwrap();
     } catch (err) {
       console.error("Failed to delete question:", err);
     }
@@ -39,16 +39,16 @@ export default function QuestionsPreferList() {
 
     const reader = new FileReader();
     reader.onload = async (event) => {
-      try {
-        const json = JSON.parse(event.target?.result as string);
-        const questions: { choiceOne: string; choiceTwo: string; modeId: string }[] = json.questions;
+      const json = JSON.parse(event.target?.result as string);
+      const questions: { type: string; gender: string; question: string; modeId: string }[] = json.questions;
 
-        for (let i = 0; i < questions.length; i += BATCH_SIZE) {
-          const batch = questions.slice(i, i + BATCH_SIZE);
-          await importPrefer({ questions: batch }).unwrap();
+      for (let i = 0; i < questions.length; i += BATCH_SIZE) {
+        const batch = questions.slice(i, i + BATCH_SIZE);
+        try {
+          await importTruthDare({ questions: batch }).unwrap();
+        } catch (err) {
+          console.error(`Failed to import batch ${i / BATCH_SIZE + 1}:`, err);
         }
-      } catch (err) {
-        console.error("Failed to import questions:", err);
       }
     };
     reader.readAsText(file);
@@ -78,13 +78,19 @@ export default function QuestionsPreferList() {
           className="hidden"
         />
         <button
+          onClick={() => refetch()}
+          className="shrink-0 rounded-full bg-dark-2 px-5 py-3 text-sm font-medium text-white hover:bg-dark-3 transition-colors dark:bg-dark-3 dark:hover:bg-dark-4"
+        >
+          Refresh
+        </button>
+        <button
           onClick={() => fileInputRef.current?.click()}
           className="shrink-0 rounded-full bg-primary px-5 py-3 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
         >
           Import JSON
         </button>
       </div>
-      <QuestionsListLayout<Prefer>
+      <QuestionsListLayout<TruthDare>
         title="Questions"
         modes={modes ?? []}
         data={data}
@@ -96,19 +102,22 @@ export default function QuestionsPreferList() {
         onDelete={handleDelete}
         renderColumns={(item) => (
           <>
-            <td className="flex-1 px-4 py-4 font-medium text-dark dark:text-white">
-              {item.choiceOne}
+            <td className="px-4 py-4 font-medium text-dark dark:text-white">
+              {item.type === "DARE" ? "Action" : "Vérité"}
             </td>
-            <td className="flex-1 px-4 py-4 font-medium text-dark dark:text-white">
-              {item.choiceTwo}
+            <td className="px-4 py-4 text-sm text-body-color dark:text-dark-6">
+              {{ MAN: "Homme", FEMALE: "Femme", ALL: "Tous" }[item.gender] ?? item.gender}
             </td>
-            <td className="px-6 sm:px-12 py-4 text-sm text-body-color dark:text-dark-6">
+            <td className="flex-1 px-4 py-4 text-dark dark:text-white">
+              {item.question}
+            </td>
+            <td className="px-4 py-4 text-sm text-body-color dark:text-dark-6">
               {item.mode?.name}
             </td>
           </>
         )}
         renderForm={({ item, onSuccess, onCancel }) => (
-          <PreferForm
+          <TruthDareForm
             key={item?.id ?? "create"}
             question={item}
             onSuccess={onSuccess}

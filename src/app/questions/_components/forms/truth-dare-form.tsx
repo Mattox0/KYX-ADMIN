@@ -29,9 +29,9 @@ export function TruthDareForm({
     useUpdateTruthDareMutation();
 
   const [type, setType] = useState<string>(
-    question?.type ?? ChallengeType.ACTION,
+    question?.type ?? ChallengeType.DARE,
   );
-  const [gender, setGender] = useState<string>(question?.gender ?? Gender.TOUS);
+  const [gender, setGender] = useState<string>(question?.gender ?? Gender.ALL);
   const [modeId, setModeId] = useState(question?.mode?.id ?? "");
 
   const isLoading = isCreating || isUpdating;
@@ -99,8 +99,8 @@ export function TruthDareForm({
             <option value="" disabled hidden>
               Sélectionner le type
             </option>
-            <option value="ACTION">Action</option>
-            <option value="VERITE">Vérité</option>
+            <option value="DARE">Action</option>
+            <option value="TRUTH">Vérité</option>
           </select>
         </div>
 
@@ -117,9 +117,9 @@ export function TruthDareForm({
             <option value="" disabled hidden>
               Sélectionner le genre
             </option>
-            <option value="Homme">Homme</option>
-            <option value="Femme">Femme</option>
-            <option value="Tous">Tous</option>
+            <option value="MAN">Homme</option>
+            <option value="FEMALE">Femme</option>
+            <option value="ALL">Tous</option>
           </select>
         </div>
 

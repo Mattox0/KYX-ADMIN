@@ -43,7 +43,6 @@ const preferApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: [TagType.QUESTIONS_PREFER],
     }),
   }),
 });

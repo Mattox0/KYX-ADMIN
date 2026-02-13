@@ -1,21 +1,21 @@
 "use client";
 
 import { Fragment, useRef, useState } from "react";
-import { NeverHave } from "@/types/api/Question";
-import { useGetNeverHavePaginationQuery, useDeleteNeverHaveMutation, useImportNeverHaveMutation } from "@/services/never-have.service";
-import { useGetNeverHaveModesQuery } from "@/services/modes.service";
+import { Prefer } from "@/types/api/Question";
+import { useGetPreferPaginationQuery, useDeletePreferMutation, useImportPreferMutation } from "@/services/prefer.service";
+import { useGetPreferModesQuery } from "@/services/modes.service";
 import { QuestionsListLayout } from "@/components/questions-list-layout";
-import { NeverHaveForm } from "@/app/questions/_components/never-have-form";
+import { PreferForm } from "@/app/questions/_components/forms/prefer-form";
 import { SearchIcon } from "@/assets/icons";
 
-export default function QuestionsNeverHaveList() {
+export default function QuestionsPreferList() {
   const [page, setPage] = useState(1);
   const [selectedModeId, setSelectedModeId] = useState<string | null>(null);
   const [search, setSearch] = useState<string | null>(null);
-  const { data: modes } = useGetNeverHaveModesQuery();
-  const { isLoading, error, data } = useGetNeverHavePaginationQuery({ page, limit: 50, modeId: selectedModeId, search: search });
-  const [deleteNeverHave] = useDeleteNeverHaveMutation();
-  const [importNeverHave] = useImportNeverHaveMutation();
+  const { data: modes } = useGetPreferModesQuery();
+  const { isLoading, error, data, refetch } = useGetPreferPaginationQuery({ page, limit: 50, modeId: selectedModeId, search: search });
+  const [deletePrefer] = useDeletePreferMutation();
+  const [importPrefer] = useImportPreferMutation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleModeChange = (modeId: string | null) => {
@@ -23,9 +23,9 @@ export default function QuestionsNeverHaveList() {
     setPage(1);
   };
 
-  const handleDelete = async (item: NeverHave) => {
+  const handleDelete = async (item: Prefer) => {
     try {
-      await deleteNeverHave(item.id).unwrap();
+      await deletePrefer(item.id).unwrap();
     } catch (err) {
       console.error("Failed to delete question:", err);
     }
@@ -39,21 +39,20 @@ export default function QuestionsNeverHaveList() {
 
     const reader = new FileReader();
     reader.onload = async (event) => {
-      try {
-        const json = JSON.parse(event.target?.result as string);
-        const questions: { question: string; modeId: string }[] = json.questions;
+      const json = JSON.parse(event.target?.result as string);
+      const questions: { choiceOne: string; choiceTwo: string; modeId: string }[] = json.questions;
 
-        for (let i = 0; i < questions.length; i += BATCH_SIZE) {
-          const batch = questions.slice(i, i + BATCH_SIZE);
-          await importNeverHave({ questions: batch }).unwrap();
+      for (let i = 0; i < questions.length; i += BATCH_SIZE) {
+        const batch = questions.slice(i, i + BATCH_SIZE);
+        try {
+          await importPrefer({ questions: batch }).unwrap();
+        } catch (err) {
+          console.error(`Failed to import batch ${i / BATCH_SIZE + 1}:`, err);
         }
-      } catch (err) {
-        console.error("Failed to import questions:", err);
       }
     };
     reader.readAsText(file);
 
-    // Reset pour pouvoir réimporter le même fichier
     e.target.value = "";
   };
 
@@ -79,13 +78,19 @@ export default function QuestionsNeverHaveList() {
           className="hidden"
         />
         <button
+          onClick={() => refetch()}
+          className="shrink-0 rounded-full bg-dark-2 px-5 py-3 text-sm font-medium text-white hover:bg-dark-3 transition-colors dark:bg-dark-3 dark:hover:bg-dark-4"
+        >
+          Refresh
+        </button>
+        <button
           onClick={() => fileInputRef.current?.click()}
           className="shrink-0 rounded-full bg-primary px-5 py-3 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
         >
           Import JSON
         </button>
       </div>
-      <QuestionsListLayout<NeverHave>
+      <QuestionsListLayout<Prefer>
         title="Questions"
         modes={modes ?? []}
         data={data}
@@ -98,7 +103,10 @@ export default function QuestionsNeverHaveList() {
         renderColumns={(item) => (
           <>
             <td className="flex-1 px-4 py-4 font-medium text-dark dark:text-white">
-              {item.question}
+              {item.choiceOne}
+            </td>
+            <td className="flex-1 px-4 py-4 font-medium text-dark dark:text-white">
+              {item.choiceTwo}
             </td>
             <td className="px-6 sm:px-12 py-4 text-sm text-body-color dark:text-dark-6">
               {item.mode?.name}
@@ -106,7 +114,7 @@ export default function QuestionsNeverHaveList() {
           </>
         )}
         renderForm={({ item, onSuccess, onCancel }) => (
-          <NeverHaveForm
+          <PreferForm
             key={item?.id ?? "create"}
             question={item}
             onSuccess={onSuccess}

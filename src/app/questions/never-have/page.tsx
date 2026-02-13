@@ -1,7 +1,7 @@
 "use client";
 
 import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
-import QuestionsNeverHaveList from '@/app/questions/_components/questions-never-have-list';
+import QuestionsNeverHaveList from '@/app/questions/_components/list/questions-never-have-list';
 
 export default function NeverHavePage() {
   return (

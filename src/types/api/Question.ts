@@ -17,17 +17,18 @@ export interface Prefer extends Question {
 }
 
 export enum Gender {
-  HOMME = "Homme",
-  FEMME = "Femme",
-  TOUS = "Tous",
+  MAN = "MAN",
+  FEMALE = "FEMALE",
+  ALL = "ALL",
 }
 
 export enum ChallengeType {
-  ACTION = "ACTION",
-  VERITE = "VERITE",
+  DARE = "DARE",
+  TRUTH = "TRUTH",
 }
 
 export interface TruthDare extends Question {
   type: ChallengeType;
   gender: Gender;
+  question: string;
 }

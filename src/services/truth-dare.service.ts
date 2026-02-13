@@ -14,7 +14,7 @@ const truthDareApi = baseApi.injectEndpoints({
       },
       providesTags: [TagType.QUESTIONS_TRUTH_DARE],
     }),
-    createTruthDare: builder.mutation<TruthDare, { type: string; gender: string; modeId: string }>({
+    createTruthDare: builder.mutation<TruthDare, { type: string; gender: string; question: string; modeId: string }>({
       query: (body) => ({
         url: "/truth-dare",
         method: "POST",
@@ -22,7 +22,7 @@ const truthDareApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [TagType.QUESTIONS_TRUTH_DARE],
     }),
-    updateTruthDare: builder.mutation<TruthDare, { id: string; body: { type: string; gender: string; modeId: string } }>({
+    updateTruthDare: builder.mutation<TruthDare, { id: string; body: { type: string; gender: string; question: string; modeId: string } }>({
       query: ({ id, body }) => ({
         url: `/truth-dare/${id}`,
         method: "PUT",
@@ -43,7 +43,6 @@ const truthDareApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: [TagType.QUESTIONS_TRUTH_DARE],
     }),
   }),
 });

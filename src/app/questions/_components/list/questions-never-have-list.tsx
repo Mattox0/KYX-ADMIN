@@ -1,21 +1,21 @@
 "use client";
 
 import { Fragment, useRef, useState } from "react";
-import { TruthDare } from "@/types/api/Question";
-import { useGetTruthDarePaginationQuery, useDeleteTruthDareMutation, useImportTruthDareMutation } from "@/services/truth-dare.service";
-import { useGetTruthDareModesQuery } from "@/services/modes.service";
+import { NeverHave } from "@/types/api/Question";
+import { useGetNeverHavePaginationQuery, useDeleteNeverHaveMutation, useImportNeverHaveMutation } from "@/services/never-have.service";
+import { useGetNeverHaveModesQuery } from "@/services/modes.service";
 import { QuestionsListLayout } from "@/components/questions-list-layout";
-import { TruthDareForm } from "@/app/questions/_components/truth-dare-form";
+import { NeverHaveForm } from "@/app/questions/_components/forms/never-have-form";
 import { SearchIcon } from "@/assets/icons";
 
-export default function QuestionsTruthDareList() {
+export default function QuestionsNeverHaveList() {
   const [page, setPage] = useState(1);
   const [selectedModeId, setSelectedModeId] = useState<string | null>(null);
   const [search, setSearch] = useState<string | null>(null);
-  const { data: modes } = useGetTruthDareModesQuery();
-  const { isLoading, error, data } = useGetTruthDarePaginationQuery({ page, limit: 50, modeId: selectedModeId, search: search });
-  const [deleteTruthDare] = useDeleteTruthDareMutation();
-  const [importTruthDare] = useImportTruthDareMutation();
+  const { data: modes } = useGetNeverHaveModesQuery();
+  const { isLoading, error, data, refetch } = useGetNeverHavePaginationQuery({ page, limit: 50, modeId: selectedModeId, search: search });
+  const [deleteNeverHave] = useDeleteNeverHaveMutation();
+  const [importNeverHave] = useImportNeverHaveMutation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleModeChange = (modeId: string | null) => {
@@ -23,9 +23,9 @@ export default function QuestionsTruthDareList() {
     setPage(1);
   };
 
-  const handleDelete = async (item: TruthDare) => {
+  const handleDelete = async (item: NeverHave) => {
     try {
-      await deleteTruthDare(item.id).unwrap();
+      await deleteNeverHave(item.id).unwrap();
     } catch (err) {
       console.error("Failed to delete question:", err);
     }
@@ -39,20 +39,21 @@ export default function QuestionsTruthDareList() {
 
     const reader = new FileReader();
     reader.onload = async (event) => {
-      try {
-        const json = JSON.parse(event.target?.result as string);
-        const questions: { type: string; gender: string; question: string; modeId: string }[] = json.questions;
+      const json = JSON.parse(event.target?.result as string);
+      const questions: { question: string; modeId: string }[] = json.questions;
 
-        for (let i = 0; i < questions.length; i += BATCH_SIZE) {
-          const batch = questions.slice(i, i + BATCH_SIZE);
-          await importTruthDare({ questions: batch }).unwrap();
+      for (let i = 0; i < questions.length; i += BATCH_SIZE) {
+        const batch = questions.slice(i, i + BATCH_SIZE);
+        try {
+          await importNeverHave({ questions: batch }).unwrap();
+        } catch (err) {
+          console.error(`Failed to import batch ${i / BATCH_SIZE + 1}:`, err);
         }
-      } catch (err) {
-        console.error("Failed to import questions:", err);
       }
     };
     reader.readAsText(file);
 
+    // Reset pour pouvoir réimporter le même fichier
     e.target.value = "";
   };
 
@@ -78,13 +79,19 @@ export default function QuestionsTruthDareList() {
           className="hidden"
         />
         <button
+          onClick={() => refetch()}
+          className="shrink-0 rounded-full bg-dark-2 px-5 py-3 text-sm font-medium text-white hover:bg-dark-3 transition-colors dark:bg-dark-3 dark:hover:bg-dark-4"
+        >
+          Refresh
+        </button>
+        <button
           onClick={() => fileInputRef.current?.click()}
           className="shrink-0 rounded-full bg-primary px-5 py-3 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
         >
           Import JSON
         </button>
       </div>
-      <QuestionsListLayout<TruthDare>
+      <QuestionsListLayout<NeverHave>
         title="Questions"
         modes={modes ?? []}
         data={data}
@@ -96,19 +103,16 @@ export default function QuestionsTruthDareList() {
         onDelete={handleDelete}
         renderColumns={(item) => (
           <>
-            <td className="px-4 py-4 font-medium text-dark dark:text-white">
-              {item.type === "ACTION" ? "Action" : "Vérité"}
+            <td className="flex-1 px-4 py-4 font-medium text-dark dark:text-white">
+              {item.question}
             </td>
-            <td className="px-4 py-4 text-sm text-body-color dark:text-dark-6">
-              {item.gender}
-            </td>
-            <td className="flex-1 px-6 sm:px-12 py-4 text-sm text-body-color dark:text-dark-6">
+            <td className="px-6 sm:px-12 py-4 text-sm text-body-color dark:text-dark-6">
               {item.mode?.name}
             </td>
           </>
         )}
         renderForm={({ item, onSuccess, onCancel }) => (
-          <TruthDareForm
+          <NeverHaveForm
             key={item?.id ?? "create"}
             question={item}
             onSuccess={onSuccess}

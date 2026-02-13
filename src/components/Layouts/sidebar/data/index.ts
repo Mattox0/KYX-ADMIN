@@ -2,7 +2,7 @@ import * as Icons from "../icons";
 
 export const NAV_DATA = [
   {
-    label: "MAIN MENU",
+    label: "APPLICATION",
     items: [
       {
         title: "Dashboard",
@@ -33,6 +33,23 @@ export const NAV_DATA = [
             url: "/questions/truth-dare",
           }
         ],
+      }
+    ],
+  },
+  {
+    label: "UTILISATEURS",
+    items: [
+      {
+        title: "Administrateurs",
+        url: "/users/administrators",
+        icon: Icons.UsersAdmin,
+        items: [],
+      },
+      {
+        title: "Joueurs",
+        url: "/users/players",
+        icon: Icons.Users,
+        items: [],
       }
     ],
   },

@@ -43,7 +43,6 @@ const neverHaveApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: [TagType.QUESTIONS_NEVER_HAVE],
     }),
   }),
 });
