@@ -1,65 +1,79 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Switch } from "@/components/FormElements/switch";
 import InputGroup from "@/components/FormElements/InputGroup";
-import Image from "next/image";
-import { AdminUser } from "@/types/api/User";
-import {
-  useCreateAdminUserMutation,
-  useUpdateAdminUserMutation,
-} from "@/services/admin-users.service";
 import { PasswordIcon } from "@/assets/icons";
+import { authClient } from "../../../../../lib/auth-client";
 
-interface CreateAdminUserFormProps {
-  onSuccess?: () => void;
-  onCancel?: () => void;
-  adminUser?: AdminUser;
+interface BetterAuthUser {
+  id: string;
+  email: string;
+  name: string;
+  image: string | null;
+  role: string;
 }
 
-export function AdminUserForm({ onSuccess, onCancel, adminUser }: CreateAdminUserFormProps) {
+interface AdminUserFormProps {
+  onSuccess?: () => void;
+  onCancel?: () => void;
+  adminUser?: BetterAuthUser;
+}
+
+export function AdminUserForm({ onSuccess, onCancel, adminUser }: AdminUserFormProps) {
   const isEditing = !!adminUser;
   const [email, setEmail] = useState(adminUser?.email ?? "");
-  const [password, setPassword] = useState(adminUser?.password ?? "");
-  const [displayName, setDisplayName] = useState(adminUser?.displayName ?? "");
-  const [profilePicture, setProfilePicture] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState(adminUser?.name ?? "");
   const [keepFormOpen, setKeepFormOpen] = useState(false);
-  const [createAdminUser, { isLoading: isCreating }] = useCreateAdminUserMutation();
-  const [updateAdminUser, { isLoading: isUpdating }] = useUpdateAdminUserMutation();
-
-  const isLoading = isCreating || isUpdating;
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("email", email);
-    formData.append("password", password);
-    formData.append("displayName", displayName);
-    if (profilePicture) {
-      formData.append("profilePicture", profilePicture);
-    }
+    setIsLoading(true);
 
     try {
       if (isEditing) {
-        await updateAdminUser({ id: adminUser.id, body: formData }).unwrap();
+        const result = await authClient.admin.updateUser({
+          userId: adminUser.id,
+          data: { email, name },
+        });
+        if (result.error) {
+          throw new Error(result.error.message ?? "Failed to update user");
+        }
+
+        if (password) {
+          const pwResult = await authClient.admin.setUserPassword({
+            userId: adminUser.id,
+            newPassword: password,
+          });
+          if (pwResult.error) {
+            throw new Error(pwResult.error.message ?? "Failed to update password");
+          }
+        }
       } else {
-        await createAdminUser(formData).unwrap();
+        const result = await authClient.admin.createUser({
+          email,
+          password,
+          name,
+          role: "admin",
+        });
+        if (result.error) {
+          throw new Error(result.error.message ?? "Failed to create user");
+        }
       }
+
       setEmail("");
       setPassword("");
-      setDisplayName("");
-
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      setName("");
 
       if (isEditing || !keepFormOpen) {
         onSuccess?.();
       }
     } catch (err) {
-      console.error(isEditing ? "Failed to update mode:" : "Failed to create mode:", err);
+      console.error(isEditing ? "Failed to update user:" : "Failed to create user:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -71,8 +85,8 @@ export function AdminUserForm({ onSuccess, onCancel, adminUser }: CreateAdminUse
           type="text"
           placeholder="Entrer le nom d'affichage"
           className="w-full"
-          value={displayName}
-          handleChange={(e) => setDisplayName(e.target.value)}
+          value={name}
+          handleChange={(e) => setName(e.target.value)}
           required
         />
 
@@ -88,37 +102,13 @@ export function AdminUserForm({ onSuccess, onCancel, adminUser }: CreateAdminUse
 
         <InputGroup
           type="password"
-          label="Mot de passe"
+          label={isEditing ? "Nouveau mot de passe (optionnel)" : "Mot de passe"}
           className="mb-5 [&_input]:py-[15px]"
           placeholder="Entrer le mot de passe"
           name="password"
           handleChange={(e) => setPassword(e.target.value)}
           value={password}
           icon={<PasswordIcon />}
-        />
-
-        {isEditing && adminUser.profilePicture && !profilePicture && (
-          <div>
-            <label className="mb-3 block text-body-sm font-medium text-dark dark:text-white">
-              Image actuelle
-            </label>
-            <Image
-              src={process.env.NEXT_PUBLIC_API_URL + `/${adminUser.profilePicture}` || ""}
-              alt={`Icône de ${adminUser.displayName}`}
-              className="h-16 w-16 rounded-md object-cover"
-              width={64}
-              height={64}
-            />
-          </div>
-        )}
-
-        <InputGroup
-          ref={fileInputRef}
-          type="file"
-          fileStyleVariant="style1"
-          label={isEditing ? "Changer l'image" : "Image du profil"}
-          placeholder="Attacher une image"
-          handleChange={(e) => setProfilePicture(e.target.files?.[0] ?? null)}
           required={!isEditing}
         />
 
