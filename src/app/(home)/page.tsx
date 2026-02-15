@@ -19,6 +19,7 @@ export default async function Home({ searchParams }: PropsType) {
 
   return (
     <>
+      <p className="text-2xl text-center mb-2">A IMPLEMENTER APRES LA MISE EN LIGNE DE L APPLICATION</p>
       <Suspense fallback={<OverviewCardsSkeleton />}>
         <OverviewCardsGroup />
       </Suspense>

@@ -5,6 +5,7 @@ import QuestionsPreferList from "@/app/questions/_components/list/questions-pref
 import { SearchIcon } from "@/assets/icons";
 import { useState } from "react";
 import ReportUnresolvedList from "@/app/reports/_components/report-unresolved-list";
+import ReportResolvedList from "@/app/reports/_components/report-resolved-list";
 
 export default function ReportPage() {
   const [search, setSearch] = useState<string | null>(null);
@@ -13,8 +14,8 @@ export default function ReportPage() {
     <>
       <Breadcrumb pageName="Signalements" />
 
-      <div className="flex-col items-center gap-3">
-        <div className="relative w-full mb-4">
+      <div className="flex flex-col w-full gap-8">
+        <div className="relative w-full">
           <input
             type="search"
             placeholder="Rechercher une question..."
@@ -27,6 +28,8 @@ export default function ReportPage() {
         </div>
 
         <ReportUnresolvedList search={search} />
+
+        <ReportResolvedList search={search} />
       </div>
     </>
   );

@@ -22,6 +22,7 @@ interface ListLayoutProps<T extends WithId> {
   onPageChange: (page: number) => void;
   onDelete?: (item: T) => Promise<void>;
   renderColumns: (item: T) => ReactNode;
+  columnHeader?: ReactNode;
   renderForm?: (props: { item?: T; onSuccess: () => void; onCancel?: () => void }) => ReactNode;
 }
 
@@ -34,6 +35,7 @@ export function ListLayout<T extends WithId>({
                                                           onPageChange,
                                                           onDelete,
                                                           renderColumns,
+                                                          columnHeader,
                                                           renderForm,
                                                         }: ListLayoutProps<T>) {
   const [isCreating, setIsCreating] = useState(false);
@@ -94,6 +96,7 @@ export function ListLayout<T extends WithId>({
           <>
             <div className="overflow-x-auto">
               <table className="w-full table-auto">
+                {columnHeader}
                 <tbody>
                 {isLoading
                   ? Array.from({ length: 5 }).map((_, i) => (

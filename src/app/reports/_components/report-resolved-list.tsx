@@ -18,9 +18,9 @@ const REASON_LABELS: Record<string, string> = {
   OTHER: "Autre",
 };
 
-export default function ReportUnresolvedList({
-  search,
-}: {
+export default function ReportResolvedList({
+                                               search,
+                                             }: {
   search: string | null;
 }) {
   const [page, setPage] = useState(1);
@@ -28,7 +28,7 @@ export default function ReportUnresolvedList({
     page,
     limit: 50,
     search: search,
-    resolved: false
+    resolved: true
   });
   const [deleteReport] = useDeleteReportMutation();
   const [updateReport] = useUpdateReportMutation();
@@ -51,17 +51,16 @@ export default function ReportUnresolvedList({
 
   return (
     <ListLayout<Report>
-      title="Signalement - Non résolus"
+      title="Signalement - Résolus"
       data={data}
       isLoading={isLoading}
       error={error}
-      textNoData="Vous avez traités tous les signalements, bravo !"
+      textNoData="Il n'y a aucun signalements."
       onPageChange={setPage}
       onDelete={handleDelete}
       columnHeader={
         <thead>
           <tr className="flex items-center border-b border-stroke dark:border-dark-3">
-            <th className="px-4 py-3 text-left text-sm font-medium text-body-color dark:text-dark-6"></th>
             <th className="w-40 px-4 py-3 text-left text-sm font-medium text-body-color dark:text-dark-6">Joueur</th>
             <th className="w-40 px-4 py-3 text-left text-sm font-medium text-body-color dark:text-dark-6">Question</th>
             <th className="flex-1 px-4 py-3 text-left text-sm font-medium text-body-color dark:text-dark-6">Commentaire</th>
@@ -82,15 +81,6 @@ export default function ReportUnresolvedList({
 
         return (
           <>
-            <td className="px-4 py-4">
-              <Button
-                icon={<icons.ResolvedIcon />}
-                shape="full"
-                size="small"
-                variant="outlineGreen"
-                onClick={() => handleResolve(item)}
-              />
-            </td>
             <td className="px-4 py-4 w-40 text-sm text-body-color dark:text-dark-6">
               {item.user?.id}
             </td>
