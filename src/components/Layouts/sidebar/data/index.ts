@@ -1,4 +1,5 @@
 import * as Icons from "../icons";
+import { FlagIcon } from "../icons";
 
 export const NAV_DATA = [
   {
@@ -33,6 +34,12 @@ export const NAV_DATA = [
             url: "/questions/truth-dare",
           }
         ],
+      },
+      {
+        title: "Signalements",
+        url: "/reports",
+        icon: Icons.FlagIcon,
+        items: [],
       }
     ],
   },

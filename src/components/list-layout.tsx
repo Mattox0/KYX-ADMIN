@@ -18,10 +18,11 @@ interface ListLayoutProps<T extends WithId> {
   data: PaginatedResponse<T> | undefined;
   isLoading: boolean;
   error: unknown;
+  textNoData?: string;
   onPageChange: (page: number) => void;
-  onDelete: (item: T) => Promise<void>;
+  onDelete?: (item: T) => Promise<void>;
   renderColumns: (item: T) => ReactNode;
-  renderForm: (props: { item?: T; onSuccess: () => void; onCancel?: () => void }) => ReactNode;
+  renderForm?: (props: { item?: T; onSuccess: () => void; onCancel?: () => void }) => ReactNode;
 }
 
 export function ListLayout<T extends WithId>({
@@ -29,6 +30,7 @@ export function ListLayout<T extends WithId>({
                                                           data,
                                                           isLoading,
                                                           error,
+                                                          textNoData = "Il n'y a pas encore de données",
                                                           onPageChange,
                                                           onDelete,
                                                           renderColumns,
@@ -66,7 +68,8 @@ export function ListLayout<T extends WithId>({
       title={title}
       className="!p-6.5"
       headerChildren={
-        <div className="flex items-center gap-2 mr-4">
+        renderForm && (
+          <div className="flex items-center gap-2 mr-4">
           <button
             className="rounded-md bg-primary px-4 py-2 text-sm text-white hover:bg-primary/90"
             onClick={toggleCreate}
@@ -74,9 +77,9 @@ export function ListLayout<T extends WithId>({
             {isCreating ? "Fermer" : "Ajouter"}
           </button>
         </div>
-      }
+      )}
     >
-      {showForm &&
+      {renderForm && showForm &&
         renderForm({
           item: editingItem ?? undefined,
           onSuccess: editingItem ? handleEditSuccess : toggleCreate,
@@ -84,7 +87,7 @@ export function ListLayout<T extends WithId>({
         })}
       {!showForm && !isLoading && data?.data.length === 0 ? (
         <p className="text-center py-8 text-body-color dark:text-dark-6">
-          Il n&#39;y a pas encore de questions
+          {textNoData}
         </p>
       ) : (
         !showForm && (
@@ -113,18 +116,22 @@ export function ListLayout<T extends WithId>({
                       {renderColumns(item)}
                       <td className="px-4 py-4">
                         <div className="flex justify-end gap-2">
-                          <button
-                            className="rounded-md bg-primary px-4 py-2 text-sm text-white hover:bg-primary/90 transition-colors"
-                            onClick={() => handleEdit(item)}
-                          >
-                            Modifier
-                          </button>
-                          <button
-                            className="rounded-md bg-white px-4 py-2 text-sm text-red hover:bg-red-light/90 hover:text-white transition-colors"
-                            onClick={() => onDelete(item)}
-                          >
-                            Supprimer
-                          </button>
+                          {renderForm && (
+                            <button
+                              className="rounded-md bg-primary px-4 py-2 text-sm text-white hover:bg-primary/90 transition-colors"
+                              onClick={() => handleEdit(item)}
+                            >
+                              Modifier
+                            </button>
+                          )}
+                          {onDelete && (
+                            <button
+                              className="rounded-md bg-white px-4 py-2 text-sm text-red hover:bg-red-light/90 hover:text-white transition-colors"
+                              onClick={() => onDelete(item)}
+                            >
+                              Supprimer
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

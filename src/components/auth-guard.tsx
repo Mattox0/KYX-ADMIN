@@ -1,28 +1,25 @@
 "use client";
 
-import { useSession, signIn } from "../../lib/auth-client";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import { useLoginMutation } from "@/services/auth.service";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { hydrate } from "@/store/authSlice";
 
 function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [login, { isLoading }] = useLoginMutation();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    setIsLoading(true);
 
     try {
-      const result = await signIn.email({ email, password });
-      if (result.error) {
-        setError(result.error.message ?? "Identifiants incorrects");
-      }
+      await login({ email, password }).unwrap();
     } catch {
-      setError("Une erreur est survenue");
-    } finally {
-      setIsLoading(false);
+      setError("Identifiants incorrects");
     }
   };
 
@@ -81,17 +78,22 @@ function SignInForm() {
 }
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { data: session, isPending } = useSession();
+  const dispatch = useDispatch();
+  const { token, hydrated } = useSelector((state: RootState) => state.auth);
 
-  if (isPending) {
+  useEffect(() => {
+    dispatch(hydrate());
+  }, [dispatch]);
+
+  if (!hydrated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-2 dark:bg-[#020d1a]">
-        <div className="text-dark dark:text-white">Chargement...</div>
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-dark dark:text-white">Chargement...</p>
       </div>
     );
   }
 
-  if (!session) {
+  if (!token) {
     return <SignInForm />;
   }
 

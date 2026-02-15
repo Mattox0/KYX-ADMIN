@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Prefer } from "@/types/api/Question";
 import { useGetPreferPaginationQuery, useDeletePreferMutation, useImportPreferMutation } from "@/services/prefer.service";
 import { useGetPreferModesQuery } from "@/services/modes.service";
@@ -11,7 +12,8 @@ import { SearchIcon } from "@/assets/icons";
 export default function QuestionsPreferList() {
   const [page, setPage] = useState(1);
   const [selectedModeId, setSelectedModeId] = useState<string | null>(null);
-  const [search, setSearch] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState<string | null>(searchParams.get("search"));
   const { data: modes } = useGetPreferModesQuery();
   const { isLoading, error, data, refetch } = useGetPreferPaginationQuery({ page, limit: 50, modeId: selectedModeId, search: search });
   const [deletePrefer] = useDeletePreferMutation();

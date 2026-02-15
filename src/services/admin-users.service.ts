@@ -5,7 +5,10 @@ import { AdminUser } from "@/types/api/User";
 
 const adminUserApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAdminUserPagination: builder.query<PaginatedResponse<AdminUser>, { page?: number; limit?: number; search?: string | null }>({
+    getAdminUserPagination: builder.query<
+      PaginatedResponse<AdminUser>,
+      { page?: number; limit?: number; search?: string | null }
+    >({
       query: ({ page = 1, limit = 50, search } = {}) => {
         let url = `/admin-user?page=${page}&limit=${limit}`;
         if (!!search) url += `&search=${encodeURIComponent(search)}`;
@@ -13,15 +16,18 @@ const adminUserApi = baseApi.injectEndpoints({
       },
       providesTags: [TagType.ADMIN_USERS],
     }),
-    createAdminUser: builder.mutation<AdminUser, FormData>({
+    createAdminUser: builder.mutation<AdminUser, { email: string; password: string; displayName: string; }>({
       query: (body) => ({
         url: "/admin-user",
         method: "POST",
-        body,
+        body: body,
       }),
       invalidatesTags: [TagType.ADMIN_USERS],
     }),
-    updateAdminUser: builder.mutation<AdminUser, { id: string; body: FormData }>({
+    updateAdminUser: builder.mutation<
+      AdminUser,
+      { id: string; body: { email: string; password: string; displayName: string; } }
+    >({
       query: ({ id, body }) => ({
         url: `/admin-user/${id}`,
         method: "PUT",

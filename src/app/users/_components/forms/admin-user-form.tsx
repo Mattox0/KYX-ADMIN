@@ -4,76 +4,45 @@ import React, { useState } from "react";
 import { Switch } from "@/components/FormElements/switch";
 import InputGroup from "@/components/FormElements/InputGroup";
 import { PasswordIcon } from "@/assets/icons";
-import { authClient } from "../../../../../lib/auth-client";
-
-interface BetterAuthUser {
-  id: string;
-  email: string;
-  name: string;
-  image: string | null;
-  role: string;
-}
+import { AdminUser } from "@/types/api/User";
+import {
+  useCreateAdminUserMutation,
+  useUpdateAdminUserMutation,
+} from "@/services/admin-users.service";
 
 interface AdminUserFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
-  adminUser?: BetterAuthUser;
+  adminUser?: AdminUser;
 }
 
 export function AdminUserForm({ onSuccess, onCancel, adminUser }: AdminUserFormProps) {
   const isEditing = !!adminUser;
   const [email, setEmail] = useState(adminUser?.email ?? "");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState(adminUser?.name ?? "");
+  const [displayName, setDisplayName] = useState(adminUser?.displayName ?? "");
   const [keepFormOpen, setKeepFormOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [createAdminUser, { isLoading: isCreating }] = useCreateAdminUserMutation();
+  const [updateAdminUser, { isLoading: isUpdating }] = useUpdateAdminUserMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
     try {
       if (isEditing) {
-        const result = await authClient.admin.updateUser({
-          userId: adminUser.id,
-          data: { email, name },
-        });
-        if (result.error) {
-          throw new Error(result.error.message ?? "Failed to update user");
-        }
-
-        if (password) {
-          const pwResult = await authClient.admin.setUserPassword({
-            userId: adminUser.id,
-            newPassword: password,
-          });
-          if (pwResult.error) {
-            throw new Error(pwResult.error.message ?? "Failed to update password");
-          }
-        }
+        await updateAdminUser({ id: adminUser?.id , body: { email, password, displayName }}).unwrap();
       } else {
-        const result = await authClient.admin.createUser({
-          email,
-          password,
-          name,
-          role: "admin",
-        });
-        if (result.error) {
-          throw new Error(result.error.message ?? "Failed to create user");
-        }
+        await createAdminUser({ email, password, displayName }).unwrap();
       }
 
       setEmail("");
       setPassword("");
-      setName("");
+      setDisplayName("");
 
       if (isEditing || !keepFormOpen) {
         onSuccess?.();
       }
     } catch (err) {
       console.error(isEditing ? "Failed to update user:" : "Failed to create user:", err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -85,8 +54,8 @@ export function AdminUserForm({ onSuccess, onCancel, adminUser }: AdminUserFormP
           type="text"
           placeholder="Entrer le nom d'affichage"
           className="w-full"
-          value={name}
-          handleChange={(e) => setName(e.target.value)}
+          value={displayName}
+          handleChange={(e) => setDisplayName(e.target.value)}
           required
         />
 
@@ -134,12 +103,12 @@ export function AdminUserForm({ onSuccess, onCancel, adminUser }: AdminUserFormP
         )}
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isUpdating || isCreating}
           className="flex w-full justify-center rounded-lg bg-primary p-[13px] font-medium text-white hover:bg-opacity-90 disabled:opacity-50"
         >
           {isEditing
-            ? isLoading ? "Modification..." : "Modifier"
-            : isLoading ? "Création..." : "Créer"
+            ? isUpdating ? "Modification..." : "Modifier"
+            : isCreating ? "Création..." : "Créer"
           }
         </button>
       </div>

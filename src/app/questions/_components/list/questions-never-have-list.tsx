@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { NeverHave } from "@/types/api/Question";
 import { useGetNeverHavePaginationQuery, useDeleteNeverHaveMutation, useImportNeverHaveMutation } from "@/services/never-have.service";
 import { useGetNeverHaveModesQuery } from "@/services/modes.service";
@@ -11,7 +12,8 @@ import { SearchIcon } from "@/assets/icons";
 export default function QuestionsNeverHaveList() {
   const [page, setPage] = useState(1);
   const [selectedModeId, setSelectedModeId] = useState<string | null>(null);
-  const [search, setSearch] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState<string | null>(searchParams.get("search"));
   const { data: modes } = useGetNeverHaveModesQuery();
   const { isLoading, error, data, refetch } = useGetNeverHavePaginationQuery({ page, limit: 50, modeId: selectedModeId, search: search });
   const [deleteNeverHave] = useDeleteNeverHaveMutation();
