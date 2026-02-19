@@ -40,6 +40,12 @@ export const NAV_DATA = [
         url: "/reports",
         icon: Icons.FlagIcon,
         items: [],
+      },
+      {
+        title: "Suggestions",
+        url: "/suggestions",
+        icon: Icons.LightBulbIcon,
+        items: [],
       }
     ],
   },
