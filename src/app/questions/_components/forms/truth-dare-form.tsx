@@ -39,14 +39,15 @@ export function TruthDareForm({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
+    // TODO: question a check
     try {
       if (isEditing) {
         await updateTruthDare({
           id: question.id,
-          body: { type, gender, modeId },
+          body: { type, question: "", gender, modeId },
         }).unwrap();
       } else {
-        await createTruthDare({ type, gender, modeId }).unwrap();
+        await createTruthDare({ type, question: "", gender, modeId }).unwrap();
       }
       setType("");
       setGender("");
